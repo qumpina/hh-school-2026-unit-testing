@@ -1,4 +1,4 @@
-package homework;
+package ru.hh.school.unittesting.homework; // исправил пакет
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,15 +8,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.hh.school.unittesting.homework.LibraryManager;
-import ru.hh.school.unittesting.homework.NotificationService;
-import ru.hh.school.unittesting.homework.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class LibraryManagerTest {
+class LibraryManagerTest { // убрал модификатор доступа
 
 
   @Mock
@@ -29,14 +26,13 @@ public class LibraryManagerTest {
   private LibraryManager libraryManager;
 
   @BeforeEach
-  void setUp() {
-    libraryManager = new LibraryManager(notificationService, userService);
+  void setUp() {//убрал лишнее создание libraryManager
     libraryManager.addBook("1", 15);
     libraryManager.addBook("2", 5);
   }
 
   @Test
-  void testAddBookShouldIncreaseQuantityOfExsistingBook() {
+  void testAddBookShouldIncreaseQuantityOfExistingBook() { // исправил опечатку
     libraryManager.addBook("1", 15);
     assertEquals(30, libraryManager.getAvailableCopies("1"));
   }
@@ -78,8 +74,16 @@ public class LibraryManagerTest {
   }
 
   @Test
-  void testReturnBookShouldReturnFalseIfUserDidNotBorrowThisBook() {
+  void testReturnBookShouldReturnFalseIfNoSuchBorrowedBook() { //Исправлено название теста
     boolean result = libraryManager.returnBook("2", "0");
+    assertFalse(result);
+  }
+
+  @Test
+  void testReturnBookShouldReturnFalseIfBookIsBorrowedButForAnotherUser() { // новый тест который покрывает случай, когда книгу возвращает не тот пользователь
+    when(userService.isUserActive("0")).thenReturn(true);
+    libraryManager.borrowBook("1", "0");
+    boolean result = libraryManager.returnBook("1", "1");
     assertFalse(result);
   }
 
@@ -124,12 +128,13 @@ public class LibraryManagerTest {
       "3, false, false, 1.5",
       "5, true, false, 3.75",
       "10, true, true, 6",
-      "4, false, true, 1.6"
+      "4, false, true, 1.6",
+      "0, true, true, 0" // добавил дополнительный тест на проверку при сдаче в срок
 
   })
   void testCalculateDynamicLateFee(int overdueDays, boolean isBestseller, boolean isPremiumMember, double expectedTotalPrice) {
-    double TotalPrice = libraryManager.calculateDynamicLateFee(overdueDays, isBestseller, isPremiumMember);
-    assertEquals(expectedTotalPrice, TotalPrice);
+    double totalPrice = libraryManager.calculateDynamicLateFee(overdueDays, isBestseller, isPremiumMember);
+    assertEquals(expectedTotalPrice, totalPrice); // исправил название переменной
 
   }
 }
